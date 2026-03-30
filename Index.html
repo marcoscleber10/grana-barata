@@ -3,26 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>StableYield Radar | Lending + Bridges & Aggregators</title>
-    <!-- TailwindCSS + Font Awesome + Chart.js -->
+    <title>StableYield Radar | Lending + Bridges</title>
+    <!-- TailwindCSS CDN oficial -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN oficial -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js CDN oficial -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             background-color: #0a0c10;
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
         }
         .terminal-card {
             background: #0f1117;
             border: 1px solid #1e293b;
             border-radius: 1rem;
             box-shadow: 0 8px 16px rgba(0,0,0,0.6);
-        }
-        .badge-green {
-            background: #0b3b2f;
-            color: #2dd4bf;
-            border-left: 3px solid #14b8a6;
         }
         .badge-negative {
             background: #064e3b;
@@ -56,13 +58,6 @@
             background: #2dd4bf;
             border-radius: 8px;
         }
-        .animate-pulse-slow {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
         .tab-active {
             border-bottom: 2px solid #2dd4bf;
             color: #2dd4bf;
@@ -70,6 +65,30 @@
         .tab-inactive {
             border-bottom: 2px solid transparent;
             color: #9ca3af;
+        }
+        .hidden {
+            display: none;
+        }
+        .flex {
+            display: flex;
+        }
+        .fixed {
+            position: fixed;
+        }
+        .inset-0 {
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+        .z-50 {
+            z-index: 50;
+        }
+        .items-center {
+            align-items: center;
+        }
+        .justify-center {
+            justify-content: center;
         }
     </style>
 </head>
@@ -80,7 +99,7 @@
         <div class="flex flex-wrap justify-between items-center mb-4 border-b border-gray-800 pb-4">
             <div>
                 <h1 class="text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">StableYield Radar</h1>
-                <p class="text-gray-400 text-sm mt-1">Custo real de capital â€¢ EmprÃ©stimos, Pontes e Agregadores</p>
+                <p class="text-gray-400 text-sm mt-1">Custo real de capital • Empréstimos, Pontes e Agregadores</p>
             </div>
             <div class="flex gap-3 mt-2 sm:mt-0">
                 <button id="exportCsvBtn" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2"><i class="fas fa-download"></i> CSV (Lending)</button>
@@ -90,31 +109,29 @@
 
         <!-- TABS -->
         <div class="flex gap-6 border-b border-gray-800 mb-6">
-            <button id="tabLending" class="tab-active pb-2 font-semibold text-base transition">ðŸ“Š Lending Radar</button>
-            <button id="TabBridges" class="tab-inactive pb-2 font-semibold text-base transition">ðŸŒ‰ Agregadores & Pontes</button>
+            <button id="tabLending" class="tab-active pb-2 font-semibold text-base transition">📊 Lending Radar</button>
+            <button id="TabBridges" class="tab-inactive pb-2 font-semibold text-base transition">🌉 Agregadores & Pontes</button>
         </div>
 
-        <!-- ==================== SEÃ‡ÃƒO LENDING (EXISTENTE) ==================== -->
+        <!-- SEÇÃO LENDING -->
         <div id="lendingSection">
-            <!-- FILTERS & SORTING (lending) -->
             <div class="terminal-card p-4 mb-6 grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div>
                     <label class="text-xs uppercase tracking-wider text-gray-400">Rede (multiselect)</label>
                     <select id="filterNetwork" multiple size="2" class="w-full bg-gray-900 border border-gray-700 rounded-md text-sm p-2">
                         <option value="Ethereum">Ethereum</option><option value="Arbitrum">Arbitrum</option><option value="Optimism">Optimism</option>
                         <option value="Base">Base</option><option value="Polygon">Polygon</option><option value="BNB Chain">BNB Chain</option>
-                        <option value="Avalanche">Avalanche</option><option value="Solana">Solana</option><option value="X Layer">X Layer</option>
+                        <option value="Avalanche">Avalanche</option><option value="Solana">Solana</option>
                     </select>
                 </div>
                 <div>
                     <label class="text-xs uppercase tracking-wider text-gray-400">Stablecoin</label>
                     <select id="filterStablecoin" multiple size="2" class="w-full bg-gray-900 border border-gray-700 rounded-md text-sm p-2">
                         <option value="USDT">USDT</option><option value="USDC">USDC</option><option value="DAI">DAI</option>
-                        <option value="FDUSD">FDUSD</option><option value="USDe">USDe</option><option value="TUSD">TUSD</option>
                     </select>
                 </div>
                 <div class="flex items-center">
-                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="negativeOnlyFilter" class="w-4 h-4 accent-emerald-500"> <span class="text-gray-300">ðŸ“‰ Apenas Net Borrow Negativo</span></label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="negativeOnlyFilter" class="w-4 h-4 accent-emerald-500"> <span class="text-gray-300">📉 Apenas Net Borrow Negativo</span></label>
                 </div>
                 <div>
                     <label class="text-xs uppercase tracking-wider text-gray-400">Ordenar por</label>
@@ -129,15 +146,14 @@
                 </div>
             </div>
 
-            <!-- TABELA LENDING -->
             <div class="terminal-card overflow-x-auto">
                 <table class="w-full text-sm text-left border-collapse">
                     <thead class="bg-gray-900/80 text-gray-300 border-b border-gray-800">
                         <tr>
                             <th class="px-4 py-3">Protocolo</th><th class="px-4 py-3">Rede</th><th class="px-4 py-3">Stablecoin</th>
                             <th class="px-4 py-3">Borrow APY</th><th class="px-4 py-3">Reward APY</th><th class="px-4 py-3">Net Borrow APY</th>
-                            <th class="px-4 py-3">UtilizaÃ§Ã£o</th><th class="px-4 py-3">Liquidez</th><th class="px-4 py-3">Risk Score</th>
-                            <th class="px-4 py-3">AtualizaÃ§Ã£o</th>
+                            <th class="px-4 py-3">Utilização</th><th class="px-4 py-3">Liquidez</th><th class="px-4 py-3">Risk Score</th>
+                            <th class="px-4 py-3">Atualização</th>
                         </tr>
                     </thead>
                     <tbody id="opportunityTableBody">
@@ -146,21 +162,20 @@
                 </table>
             </div>
             <div class="text-xs text-gray-500 mt-3 flex justify-between">
-                <span><i class="fas fa-chart-line"></i> Dados em tempo real (simulados) â€¢ AtualizaÃ§Ã£o a cada 30s</span>
+                <span><i class="fas fa-chart-line"></i> Dados simulados para demonstração • Atualização a cada 30s</span>
                 <span id="lastGlobalUpdate">--:--:--</span>
             </div>
         </div>
 
-        <!-- ==================== SEÃ‡ÃƒO BRIDGES & AGGREGATORS ==================== -->
+        <!-- SEÇÃO BRIDGES -->
         <div id="bridgesSection" class="hidden">
-            <!-- Filtros especÃ­ficos -->
             <div class="terminal-card p-4 mb-6 grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div>
                     <label class="text-xs uppercase tracking-wider text-gray-400">From Chain</label>
                     <select id="bridgeFromChain" class="w-full bg-gray-900 border border-gray-700 rounded-md text-sm p-2">
                         <option value="all">Todas</option>
                         <option>Ethereum</option><option>Arbitrum</option><option>Optimism</option><option>Base</option>
-                        <option>Polygon</option><option>BNB Chain</option><option>Avalanche</option><option>Solana</option>
+                        <option>Polygon</option><option>BNB Chain</option><option>Avalanche</option>
                     </select>
                 </div>
                 <div>
@@ -168,32 +183,31 @@
                     <select id="bridgeToChain" class="w-full bg-gray-900 border border-gray-700 rounded-md text-sm p-2">
                         <option value="all">Todas</option>
                         <option>Ethereum</option><option>Arbitrum</option><option>Optimism</option><option>Base</option>
-                        <option>Polygon</option><option>BNB Chain</option><option>Avalanche</option><option>Solana</option>
+                        <option>Polygon</option><option>BNB Chain</option><option>Avalanche</option>
                     </select>
                 </div>
                 <div>
                     <label class="text-xs uppercase tracking-wider text-gray-400">Stablecoin</label>
                     <select id="bridgeStablecoin" class="w-full bg-gray-900 border border-gray-700 rounded-md text-sm p-2">
-                        <option value="USDC">USDC</option><option value="USDT">USDT</option><option value="DAI">DAI</option>
+                        <option value="USDC">USDC</option><option value="USDT">USDT</option>
                     </select>
                 </div>
                 <div class="flex items-center gap-3">
                     <label class="flex items-center gap-1 text-sm"><input type="checkbox" id="cheapestOnly" class="accent-emerald-500"> Apenas mais barato</label>
-                    <label class="flex items-center gap-1 text-sm"><input type="checkbox" id="fastestOnly" class="accent-emerald-500"> Apenas mais rÃ¡pido</label>
+                    <label class="flex items-center gap-1 text-sm"><input type="checkbox" id="fastestOnly" class="accent-emerald-500"> Apenas mais rápido</label>
                 </div>
                 <div class="flex items-end">
                     <button id="refreshBridgesBtn" class="bg-emerald-800 hover:bg-emerald-700 px-4 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fas fa-sync-alt"></i> Atualizar rotas</button>
                 </div>
             </div>
 
-            <!-- Tabela de pontes/agregadores -->
             <div class="terminal-card overflow-x-auto">
                 <table class="w-full text-sm text-left border-collapse">
                     <thead class="bg-gray-900/80 text-gray-300 border-b border-gray-800">
                         <tr>
                             <th class="px-4 py-3">Rota</th><th class="px-4 py-3">Swap Aggregator</th><th class="px-4 py-3">Bridge</th>
                             <th class="px-4 py-3">Custo Total %</th><th class="px-4 py-3">Gas Est. (USD)</th><th class="px-4 py-3">ETA (min)</th>
-                            <th class="px-4 py-3">Impacto no Yield</th><th class="px-4 py-3">AÃ§Ã£o</th>
+                            <th class="px-4 py-3">Impacto no Yield</th><th class="px-4 py-3">Ação</th>
                         </tr>
                     </thead>
                     <tbody id="bridgeTableBody">
@@ -202,24 +216,20 @@
                 </table>
             </div>
 
-            <!-- GrÃ¡ficos comparativos -->
             <div class="grid md:grid-cols-2 gap-6 mt-8">
                 <div class="terminal-card p-4">
-                    <h3 class="text-md font-semibold mb-3">ðŸ“Š Custo Total por Rota (bar)</h3>
+                    <h3 class="text-md font-semibold mb-3">📊 Custo Total por Rota</h3>
                     <canvas id="costBarChart" height="200"></canvas>
                 </div>
                 <div class="terminal-card p-4">
-                    <h3 class="text-md font-semibold mb-3">ðŸ“ˆ HistÃ³rico 24h (custo mÃ©dio)</h3>
+                    <h3 class="text-md font-semibold mb-3">📈 Histórico 24h (custo médio)</h3>
                     <canvas id="costLineChart" height="200"></canvas>
                 </div>
-            </div>
-            <div class="text-xs text-gray-500 mt-3 text-right">
-                <span><i class="fas fa-chart-line"></i> AtualizaÃ§Ã£o a cada 30s â€¢ Dados simulados (APIs mock)</span>
             </div>
         </div>
     </div>
 
-    <!-- MODAL PROTOCOLO (lending) -->
+    <!-- MODAL PROTOCOLO -->
     <div id="protocolModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-bg">
         <div class="bg-gray-900 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-700 shadow-2xl m-4">
             <div class="sticky top-0 bg-gray-900 border-b border-gray-800 px-6 py-4 flex justify-between items-center">
@@ -229,104 +239,94 @@
             <div class="p-6 space-y-6">
                 <canvas id="rateChart" width="400" height="200" class="w-full h-auto bg-gray-800 rounded-lg p-2"></canvas>
                 <div class="grid md:grid-cols-2 gap-4 text-sm">
-                    <div><p><span class="text-gray-400">Curva de juros:</span> <span id="curveInfo">Modelo Aave v3</span></p>
-                    <p><span class="text-gray-400">Total Supply:</span> <span id="totalSupply">â€”</span></p>
-                    <p><span class="text-gray-400">Total Borrow:</span> <span id="totalBorrow">â€”</span></p>
-                    <p><span class="text-gray-400">UtilizaÃ§Ã£o %:</span> <span id="detailUtilization">â€”</span></p></div>
-                    <div><p><span class="text-gray-400">Token recompensa:</span> <span id="rewardToken">â€”</span></p>
-                    <p><span class="text-gray-400">EmissÃ£o diÃ¡ria:</span> <span id="dailyEmission">â€”</span></p>
-                    <p><span class="text-gray-400">Link:</span> <a id="protocolLink" href="#" target="_blank" class="text-cyan-400">Acessar</a></p>
-                    <p><span class="text-gray-400">Risk Score:</span> <span id="riskDetail">â€”</span></p></div>
+                    <div>
+                        <p><span class="text-gray-400">Total Supply:</span> <span id="totalSupply">—</span></p>
+                        <p><span class="text-gray-400">Total Borrow:</span> <span id="totalBorrow">—</span></p>
+                        <p><span class="text-gray-400">Utilização:</span> <span id="detailUtilization">—</span></p>
+                    </div>
+                    <div>
+                        <p><span class="text-gray-400">Token recompensa:</span> <span id="rewardToken">—</span></p>
+                        <p><span class="text-gray-400">Risk Score:</span> <span id="riskDetail">—</span></p>
+                        <p><span class="text-gray-400">Link:</span> <a id="protocolLink" href="#" target="_blank" class="text-cyan-400">Acessar app</a></p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL COST BREAKDOWN (bridges) -->
+    <!-- MODAL CUSTOS BRIDGE -->
     <div id="costModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-bg">
         <div class="bg-gray-900 rounded-xl max-w-md w-full border border-gray-700 shadow-2xl p-6">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-bold text-emerald-300">Detalhamento de Custos</h3>
                 <button id="closeCostModalBtn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
             </div>
-            <div id="costBreakdownContent" class="space-y-2 text-sm">
-                <!-- preenchido dinamicamente -->
-            </div>
+            <div id="costBreakdownContent" class="space-y-2 text-sm"></div>
         </div>
     </div>
 
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
 
     <script>
-        // ------------------- LENDING SECTION (cÃ³digo existente adaptado) -------------------
+        // ==================== DADOS MOCK ====================
         const PROTOCOLS_META = {
-            "Aave": { tvl: 6500, age: 4.5, audits: true, exploit: false, token: "AAVE", dailyEmi: "$145K", link: "https://app.aave.com" },
-            "Compound": { tvl: 3200, age: 5, audits: true, exploit: false, token: "COMP", dailyEmi: "$82K", link: "https://app.compound.finance" },
-            "Venus": { tvl: 1400, age: 3, audits: true, exploit: false, token: "XVS", dailyEmi: "$110K", link: "https://app.venus.io" },
-            "Radiant": { tvl: 890, age: 2, audits: true, exploit: false, token: "RDNT", dailyEmi: "$67K", link: "https://app.radiant.capital" },
-            "Morpho": { tvl: 2100, age: 2.5, audits: true, exploit: false, token: "MORPHO", dailyEmi: "$34K", link: "https://app.morpho.org" },
-            "Spark": { tvl: 1700, age: 1.8, audits: true, exploit: false, token: "SPK", dailyEmi: "$42K", link: "https://app.spark.fi" },
-            "Euler": { tvl: 450, age: 2.2, audits: true, exploit: true, token: "EUL", dailyEmi: "$18K", link: "https://app.euler.finance" },
-            "Kamino": { tvl: 1100, age: 1.5, audits: true, exploit: false, token: "KMNO", dailyEmi: "$95K", link: "https://app.kamino.finance" },
-            "Drift": { tvl: 950, age: 1.8, audits: true, exploit: false, token: "DRIFT", dailyEmi: "$77K", link: "https://app.drift.trade" }
+            "Aave": { tvl: 6500, age: 4.5, audits: true, exploit: false, token: "AAVE", link: "https://app.aave.com" },
+            "Compound": { tvl: 3200, age: 5, audits: true, exploit: false, token: "COMP", link: "https://app.compound.finance" },
+            "Venus": { tvl: 1400, age: 3, audits: true, exploit: false, token: "XVS", link: "https://app.venus.io" },
+            "Morpho": { tvl: 2100, age: 2.5, audits: true, exploit: false, token: "MORPHO", link: "https://app.morpho.org" }
         };
-        const NETWORKS = ["Ethereum","Arbitrum","Optimism","Base","Polygon","BNB Chain","Avalanche","Solana","X Layer"];
-        const STABLECOINS = ["USDT","USDC","DAI","FDUSD","USDe","TUSD"];
+        
+        const NETWORKS = ["Ethereum", "Arbitrum", "Optimism", "Base", "Polygon", "BNB Chain"];
+        const STABLECOINS = ["USDT", "USDC", "DAI"];
+        
         let allOpportunities = [];
         let lastNegativeKeys = new Set();
-
+        let chartInstance = null;
+        let barChart, lineChart;
+        
+        // Bridge data
+        let bridgeRoutes = [];
+        const swapAggregators = ["1inch", "Paraswap", "0x"];
+        const bridgesList = ["Stargate", "Across", "Hop"];
+        const chainsList = ["Ethereum", "Arbitrum", "Optimism", "Base", "Polygon", "BNB Chain"];
+        
         function getRiskScore(protocol) {
             const meta = PROTOCOLS_META[protocol] || { tvl: 200, age: 0.5, audits: false, exploit: false };
             if (meta.tvl > 500 && meta.age > 2 && meta.audits && !meta.exploit) return "Baixo";
             if (meta.tvl < 100 || meta.age < 1 || meta.exploit) return "Alto";
-            return "MÃ©dio";
+            return "Médio";
         }
+        
         function getRiskClass(score) {
             if(score === "Baixo") return "risk-low";
             if(score === "Alto") return "risk-high";
             return "risk-medium";
         }
-        function randomBorrowApy() { return (Math.random() * 12 + 2).toFixed(2); }
-        function randomRewardApy() { return (Math.random() * 8).toFixed(2); }
-        function randomUtil() { return (Math.random() * 80 + 10).toFixed(0); }
-        function randomLiquidity() { return (Math.random() * 400 + 10).toFixed(0); }
-
+        
         function generateMockData() {
             const newData = [];
             for(let p of Object.keys(PROTOCOLS_META)) {
-                for(let net of NETWORKS.slice(0,6)) {
-                    for(let stable of STABLECOINS.slice(0,4)) {
-                        if(Math.random() > 0.45) continue;
-                        const borrow = parseFloat(randomBorrowApy());
-                        const reward = parseFloat(randomRewardApy());
+                for(let net of NETWORKS) {
+                    for(let stable of STABLECOINS) {
+                        if(Math.random() > 0.5) continue;
+                        const borrow = parseFloat((Math.random() * 12 + 2).toFixed(2));
+                        const reward = parseFloat((Math.random() * 8).toFixed(2));
                         const netBorrow = borrow - reward;
                         newData.push({
                             protocol: p, network: net, stablecoin: stable, borrowApy: borrow, rewardApy: reward,
-                            netBorrowApy: netBorrow, utilization: randomUtil()+"%", liquidity: `$${randomLiquidity()}M`,
+                            netBorrowApy: netBorrow, utilization: Math.floor(Math.random() * 80 + 10) + "%", 
+                            liquidity: `$${(Math.random() * 400 + 10).toFixed(0)}M`,
                             riskScore: getRiskScore(p), lastUpdate: new Date().toLocaleTimeString(),
-                            totalSupply: `$${(Math.random() * 800 + 50).toFixed(0)}M`, totalBorrow: `$${(Math.random() * 400 + 20).toFixed(0)}M`,
-                            rewardToken: PROTOCOLS_META[p]?.token, dailyEmission: PROTOCOLS_META[p]?.dailyEmi, link: PROTOCOLS_META[p]?.link
-                        });
-                    }
-                }
-            }
-            for(let p of ["Kamino","Drift"]) {
-                for(let net of ["Solana","X Layer"]) {
-                    for(let stable of ["USDC","USDT"]) {
-                        const borrow = parseFloat(randomBorrowApy());
-                        const reward = parseFloat(randomRewardApy());
-                        newData.push({
-                            protocol: p, network: net, stablecoin: stable, borrowApy: borrow, rewardApy: reward,
-                            netBorrowApy: borrow - reward, utilization: randomUtil()+"%", liquidity: `$${randomLiquidity()}M`,
-                            riskScore: getRiskScore(p), lastUpdate: new Date().toLocaleTimeString(),
-                            totalSupply: `$${(Math.random() * 300 + 30).toFixed(0)}M`, totalBorrow: `$${(Math.random() * 150 + 10).toFixed(0)}M`,
-                            rewardToken: PROTOCOLS_META[p]?.token, dailyEmission: PROTOCOLS_META[p]?.dailyEmi, link: PROTOCOLS_META[p]?.link
+                            totalSupply: `$${(Math.random() * 800 + 50).toFixed(0)}M`, 
+                            totalBorrow: `$${(Math.random() * 400 + 20).toFixed(0)}M`,
+                            rewardToken: PROTOCOLS_META[p]?.token, link: PROTOCOLS_META[p]?.link
                         });
                     }
                 }
             }
             return newData;
         }
+        
         function mutateLendingData() {
             allOpportunities = allOpportunities.map(item => {
                 let newBorrow = item.borrowApy + (Math.random() - 0.5) * 1.2;
@@ -334,25 +334,29 @@
                 let newReward = item.rewardApy + (Math.random() - 0.5) * 1.0;
                 newReward = Math.min(Math.max(newReward, 0), 12);
                 let newNet = newBorrow - newReward;
-                let newUtil = parseFloat(item.utilization) + (Math.random() - 0.5) * 5;
-                newUtil = Math.min(Math.max(newUtil, 5), 98).toFixed(0)+"%";
-                let newLiq = parseFloat(item.liquidity.replace('$','').replace('M','')) + (Math.random() - 0.5)*15;
-                newLiq = Math.max(5, newLiq).toFixed(0)+"M";
-                return { ...item, borrowApy: parseFloat(newBorrow.toFixed(2)), rewardApy: parseFloat(newReward.toFixed(2)),
-                    netBorrowApy: parseFloat(newNet.toFixed(2)), utilization: newUtil, liquidity: `$${newLiq}`, lastUpdate: new Date().toLocaleTimeString() };
+                return { 
+                    ...item, 
+                    borrowApy: parseFloat(newBorrow.toFixed(2)), 
+                    rewardApy: parseFloat(newReward.toFixed(2)),
+                    netBorrowApy: parseFloat(newNet.toFixed(2)), 
+                    lastUpdate: new Date().toLocaleTimeString() 
+                };
             });
             checkForNewNegative();
             renderLendingTable();
-            document.getElementById("lastGlobalUpdate").innerText = `Ãšltima atualizaÃ§Ã£o: ${new Date().toLocaleTimeString()}`;
+            document.getElementById("lastGlobalUpdate").innerText = `Última atualização: ${new Date().toLocaleTimeString()}`;
         }
+        
         function checkForNewNegative() {
             const currentNeg = new Set();
             allOpportunities.forEach(opp => { if(opp.netBorrowApy < 0) currentNeg.add(`${opp.protocol}-${opp.network}-${opp.stablecoin}`); });
-            currentNeg.forEach(key => { if(!lastNegativeKeys.has(key)) showToast(`ðŸ”¥ NOVA OPORTUNIDADE: ${key.split('-')[0]} Net Borrow negativo!`, "success"); });
+            currentNeg.forEach(key => { if(!lastNegativeKeys.has(key)) showToast(`🔥 NOVA OPORTUNIDADE: ${key.split('-')[0]} Net Borrow negativo!`, "success"); });
             lastNegativeKeys = currentNeg;
         }
+        
         let lendingFilters = { networks: [], stablecoins: [], negativeOnly: false };
         let currentSort = "net";
+        
         function applyLendingFilters() {
             let filtered = [...allOpportunities];
             if(lendingFilters.networks.length) filtered = filtered.filter(o => lendingFilters.networks.includes(o.network));
@@ -363,6 +367,7 @@
             else if(currentSort === "liquidity") filtered.sort((a,b) => parseFloat(b.liquidity.replace('$','').replace('M','')) - parseFloat(a.liquidity.replace('$','').replace('M','')));
             return filtered;
         }
+        
         function renderLendingTable() {
             const tbody = document.getElementById("opportunityTableBody");
             const data = applyLendingFilters();
@@ -370,7 +375,7 @@
             tbody.innerHTML = data.map(opp => {
                 const isNegative = opp.netBorrowApy < 0;
                 const netDisplay = `${opp.netBorrowApy.toFixed(2)}%`;
-                const badge = isNegative ? `<span class="badge-negative ml-2"><i class="fas fa-hand-holding-usd"></i> VOCÃŠ RECEBE PARA PEGAR EMPRESTADO</span>` : "";
+                const badge = isNegative ? `<span class="badge-negative ml-2"><i class="fas fa-hand-holding-usd"></i> VOCÊ RECEBE</span>` : "";
                 const riskClass = getRiskClass(opp.riskScore);
                 return `<tr class="table-row border-b border-gray-800/60" data-protocol='${JSON.stringify(opp)}'>
                             <td class="px-4 py-3 font-medium text-cyan-300">${opp.protocol}</td>
@@ -381,64 +386,75 @@
                             <td class="px-4 py-3">${opp.utilization}</td><td class="px-4 py-3">${opp.liquidity}</td>
                             <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-xs font-bold ${riskClass}">${opp.riskScore}</span></td>
                             <td class="px-4 py-3 text-gray-400 text-xs">${opp.lastUpdate}</td>
-                         </tr>`;
+                          </tr>`;
             }).join("");
             document.querySelectorAll("#opportunityTableBody tr").forEach(row => {
-                row.addEventListener("click", (e) => { const opp = JSON.parse(row.getAttribute("data-protocol")); openModal(opp); });
+                row.addEventListener("click", () => { 
+                    const opp = JSON.parse(row.getAttribute("data-protocol")); 
+                    openModal(opp); 
+                });
             });
         }
-        // lending modal e grÃ¡ficos (resumido)
-        let chartInstance = null;
+        
         function openModal(opp) {
-            document.getElementById("modalTitle").innerHTML = `${opp.protocol} â€¢ ${opp.network} â€¢ ${opp.stablecoin}`;
-            document.getElementById("totalSupply").innerText = opp.totalSupply; document.getElementById("totalBorrow").innerText = opp.totalBorrow;
-            document.getElementById("detailUtilization").innerText = opp.utilization; document.getElementById("rewardToken").innerText = opp.rewardToken;
-            document.getElementById("dailyEmission").innerText = opp.dailyEmission; document.getElementById("protocolLink").href = opp.link;
+            document.getElementById("modalTitle").innerHTML = `${opp.protocol} • ${opp.network} • ${opp.stablecoin}`;
+            document.getElementById("totalSupply").innerText = opp.totalSupply; 
+            document.getElementById("totalBorrow").innerText = opp.totalBorrow;
+            document.getElementById("detailUtilization").innerText = opp.utilization; 
+            document.getElementById("rewardToken").innerText = opp.rewardToken || "—";
+            document.getElementById("protocolLink").href = opp.link || "#";
             document.getElementById("riskDetail").innerHTML = `<span class="px-2 py-1 rounded ${getRiskClass(opp.riskScore)}">${opp.riskScore}</span>`;
+            
             const ctx = document.getElementById("rateChart").getContext("2d");
             if(chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctx, { type: 'line', data: { labels: Array(7).fill(0).map((_,i)=>`Dia ${i+1}`), datasets: [{ label:'Borrow', data: Array(7).fill(opp.borrowApy).map((v,i)=>v+(Math.sin(i)*0.5)), borderColor:'#f97316' },{ label:'Reward', data: Array(7).fill(opp.rewardApy).map((v,i)=>v+(Math.cos(i)*0.3)), borderColor:'#2dd4bf' }] }, options:{ responsive:true } });
-            document.getElementById("protocolModal").classList.remove("hidden"); document.getElementById("protocolModal").classList.add("flex");
+            chartInstance = new Chart(ctx, { 
+                type: 'line', 
+                data: { 
+                    labels: Array(7).fill(0).map((_,i)=>`Dia ${i+1}`), 
+                    datasets: [
+                        { label:'Borrow', data: Array(7).fill(opp.borrowApy).map((v,i)=>v+(Math.sin(i)*0.5)), borderColor:'#f97316' },
+                        { label:'Reward', data: Array(7).fill(opp.rewardApy).map((v,i)=>v+(Math.cos(i)*0.3)), borderColor:'#2dd4bf' }
+                    ] 
+                }, 
+                options:{ responsive: true } 
+            });
+            document.getElementById("protocolModal").classList.remove("hidden");
+            document.getElementById("protocolModal").classList.add("flex");
         }
-
-        // ------------------- BRIDGES & AGGREGATORS SECTION -------------------
-        let bridgeRoutes = [];
-        let barChart, lineChart;
-        const swapAggregators = ["1inch", "Paraswap", "0x", "Matcha"];
-        const bridges = ["Stargate", "Across", "Hop", "Synapse", "Wormhole"];
-        const chains = ["Ethereum", "Arbitrum", "Optimism", "Base", "Polygon", "BNB Chain", "Avalanche", "Solana"];
+        
+        // ==================== BRIDGES ====================
         function generateMockBridgeData() {
             const routes = [];
-            for(let i=0; i<12; i++) {
-                const from = chains[Math.floor(Math.random()*chains.length)];
-                let to = chains[Math.floor(Math.random()*chains.length)];
-                while(to === from) to = chains[Math.floor(Math.random()*chains.length)];
+            for(let i=0; i<10; i++) {
+                const from = chainsList[Math.floor(Math.random()*chainsList.length)];
+                let to = chainsList[Math.floor(Math.random()*chainsList.length)];
+                while(to === from) to = chainsList[Math.floor(Math.random()*chainsList.length)];
                 const swapAgg = swapAggregators[Math.floor(Math.random()*swapAggregators.length)];
-                const bridge = bridges[Math.floor(Math.random()*bridges.length)];
+                const bridge = bridgesList[Math.floor(Math.random()*bridgesList.length)];
                 const swapFee = (Math.random() * 0.15 + 0.01).toFixed(2);
                 const bridgeFee = (Math.random() * 0.2 + 0.02).toFixed(2);
                 const gasCost = (Math.random() * 0.5 + 0.1).toFixed(2);
                 const totalCost = (parseFloat(swapFee) + parseFloat(bridgeFee) + parseFloat(gasCost)).toFixed(2);
                 const eta = Math.floor(Math.random() * 15 + 1);
-                const netImpact = (Math.random() * 2 - 1).toFixed(2); // simula impacto no yield
+                const netImpact = (Math.random() * 2 - 1).toFixed(2);
                 routes.push({ id: i, from, to, swapAgg, bridge, swapFee, bridgeFee, gasCost, totalCost, eta, netImpact, stable: "USDC" });
             }
             return routes;
         }
+        
         function filterBridgeRoutes() {
             let filtered = [...bridgeRoutes];
             const fromChain = document.getElementById("bridgeFromChain").value;
             const toChain = document.getElementById("bridgeToChain").value;
-            const stable = document.getElementById("bridgeStablecoin").value;
             const cheapestOnly = document.getElementById("cheapestOnly").checked;
             const fastestOnly = document.getElementById("fastestOnly").checked;
             if(fromChain !== "all") filtered = filtered.filter(r => r.from === fromChain);
             if(toChain !== "all") filtered = filtered.filter(r => r.to === toChain);
-            filtered = filtered.filter(r => r.stable === stable);
             if(cheapestOnly) filtered.sort((a,b) => parseFloat(a.totalCost) - parseFloat(b.totalCost));
             if(fastestOnly) filtered.sort((a,b) => a.eta - b.eta);
             return filtered;
         }
+        
         function renderBridgeTable() {
             const tbody = document.getElementById("bridgeTableBody");
             const data = filterBridgeRoutes();
@@ -447,7 +463,7 @@
                 const impactClass = parseFloat(route.netImpact) < 0 ? "text-green-500" : "text-red-500";
                 const impactText = parseFloat(route.netImpact) < 0 ? "Arbitragem Positiva" : "Custo Elevado";
                 return `<tr class="border-b border-gray-800/60">
-                            <td class="px-4 py-3">${route.from} â†’ ${route.to}</td>
+                            <td class="px-4 py-3">${route.from} → ${route.to}</td>
                             <td class="px-4 py-3">${route.swapAgg}</td>
                             <td class="px-4 py-3">${route.bridge}</td>
                             <td class="px-4 py-3 text-emerald-400">${route.totalCost}%</td>
@@ -455,8 +471,9 @@
                             <td class="px-4 py-3">${route.eta} min</td>
                             <td class="px-4 py-3 ${impactClass}">${impactText} (${route.netImpact}%)</td>
                             <td class="px-4 py-3"><button class="cost-detail-btn bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded text-xs" data-route='${JSON.stringify(route)}'><i class="fas fa-chart-simple"></i> Detalhes</button></td>
-                         </tr>`;
+                          </tr>`;
             }).join("");
+            
             document.querySelectorAll(".cost-detail-btn").forEach(btn => {
                 btn.addEventListener("click", (e) => {
                     e.stopPropagation();
@@ -474,39 +491,60 @@
             });
             updateCharts(data);
         }
+        
         function updateCharts(routes) {
-            const labels = routes.slice(0,6).map(r => `${r.from}â†’${r.to}`);
+            const labels = routes.slice(0,6).map(r => `${r.from}→${r.to}`);
             const costs = routes.slice(0,6).map(r => parseFloat(r.totalCost));
             if(barChart) barChart.destroy();
             const barCtx = document.getElementById("costBarChart").getContext("2d");
-            barChart = new Chart(barCtx, { type: 'bar', data: { labels, datasets: [{ label: 'Custo Total %', data: costs, backgroundColor: '#2dd4bf' }] }, options: { responsive: true, maintainAspectRatio: true } });
-            // histÃ³rico 24h mock
+            barChart = new Chart(barCtx, { type: 'bar', data: { labels, datasets: [{ label: 'Custo Total %', data: costs, backgroundColor: '#2dd4bf' }] }, options: { responsive: true } });
+            
             const hours = Array(24).fill(0).map((_,i)=>`${i}h`);
             const histData = Array(24).fill(0).map(() => (Math.random() * 0.5 + 0.1).toFixed(2));
             if(lineChart) lineChart.destroy();
             const lineCtx = document.getElementById("costLineChart").getContext("2d");
-            lineChart = new Chart(lineCtx, { type: 'line', data: { labels: hours.slice(0,12), datasets: [{ label: 'Custo mÃ©dio (%)', data: histData.slice(0,12), borderColor: '#f97316', tension: 0.3 }] } });
+            lineChart = new Chart(lineCtx, { type: 'line', data: { labels: hours.slice(0,12), datasets: [{ label: 'Custo médio (%)', data: histData.slice(0,12), borderColor: '#f97316', tension: 0.3 }] } });
         }
+        
         function refreshBridgeData() {
             bridgeRoutes = generateMockBridgeData();
             renderBridgeTable();
         }
-        // AtualizaÃ§Ã£o periÃ³dica para bridges
-        setInterval(() => { if(document.getElementById("bridgesSection").classList.contains("hidden")===false) refreshBridgeData(); }, 30000);
-        // AtualizaÃ§Ã£o lending
-        setInterval(() => { if(document.getElementById("lendingSection").classList.contains("hidden")===false) mutateLendingData(); }, 30000);
         
-        // TABS
+        function showToast(msg, type) { 
+            const toast = document.createElement("div"); 
+            toast.className = `bg-gray-800 border-l-4 ${type==="success"?"border-emerald-400":"border-cyan-400"} rounded-md shadow-lg p-3 max-w-sm text-sm`; 
+            toast.innerHTML = `<i class="fas fa-bell mr-2 text-emerald-300"></i>${msg}`; 
+            document.getElementById("toastContainer").appendChild(toast); 
+            setTimeout(()=>toast.remove(),5000); 
+        }
+        
+        // ==================== INICIALIZAÇÃO E EVENTOS ====================
+        allOpportunities = generateMockData();
+        renderLendingTable();
+        bridgeRoutes = generateMockBridgeData();
+        
+        setInterval(() => { if(!document.getElementById("bridgesSection").classList.contains("hidden")) refreshBridgeData(); }, 30000);
+        setInterval(() => { if(!document.getElementById("lendingSection").classList.contains("hidden")) mutateLendingData(); }, 30000);
+        
+        // Tabs
         const lendingDiv = document.getElementById("lendingSection");
         const bridgesDiv = document.getElementById("bridgesSection");
         const tabLend = document.getElementById("tabLending");
         const tabBridge = document.getElementById("TabBridges");
-        function showLending() { lendingDiv.classList.remove("hidden"); bridgesDiv.classList.add("hidden"); tabLend.classList.add("tab-active"); tabLend.classList.remove("tab-inactive"); tabBridge.classList.add("tab-inactive"); tabBridge.classList.remove("tab-active"); }
-        function showBridges() { bridgesDiv.classList.remove("hidden"); lendingDiv.classList.add("hidden"); tabBridge.classList.add("tab-active"); tabBridge.classList.remove("tab-inactive"); tabLend.classList.add("tab-inactive"); tabLend.classList.remove("tab-active"); refreshBridgeData(); }
-        tabLend.addEventListener("click", showLending);
-        tabBridge.addEventListener("click", showBridges);
         
-        // Event listeners lending
+        tabLend.addEventListener("click", () => {
+            lendingDiv.classList.remove("hidden"); bridgesDiv.classList.add("hidden");
+            tabLend.classList.add("tab-active"); tabLend.classList.remove("tab-inactive");
+            tabBridge.classList.add("tab-inactive"); tabBridge.classList.remove("tab-active");
+        });
+        tabBridge.addEventListener("click", () => {
+            bridgesDiv.classList.remove("hidden"); lendingDiv.classList.add("hidden");
+            tabBridge.classList.add("tab-active"); tabBridge.classList.remove("tab-inactive");
+            tabLend.classList.add("tab-inactive"); tabLend.classList.remove("tab-active");
+            refreshBridgeData();
+        });
+        
         document.getElementById("filterNetwork").addEventListener("change", () => { lendingFilters.networks = Array.from(document.getElementById("filterNetwork").selectedOptions).map(o=>o.value); renderLendingTable(); });
         document.getElementById("filterStablecoin").addEventListener("change", () => { lendingFilters.stablecoins = Array.from(document.getElementById("filterStablecoin").selectedOptions).map(o=>o.value); renderLendingTable(); });
         document.getElementById("negativeOnlyFilter").addEventListener("change", () => { lendingFilters.negativeOnly = document.getElementById("negativeOnlyFilter").checked; renderLendingTable(); });
@@ -515,15 +553,19 @@
         document.getElementById("refreshBridgesBtn").addEventListener("click", () => { refreshBridgeData(); showToast("Rotas atualizadas", "info"); });
         document.getElementById("closeModalBtn").addEventListener("click", () => { document.getElementById("protocolModal").classList.add("hidden"); });
         document.getElementById("closeCostModalBtn").addEventListener("click", () => { document.getElementById("costModal").classList.add("hidden"); });
-        document.getElementById("exportCsvBtn").addEventListener("click", () => { const data = applyLendingFilters(); const csv = ["Protocolo,Rede,Stablecoin,Borrow APY,Reward APY,Net Borrow APY"].concat(data.map(r=>`${r.protocol},${r.network},${r.stablecoin},${r.borrowApy},${r.rewardApy},${r.netBorrowApy}`)).join("\n"); const blob = new Blob([csv],{type:"text/csv"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="lending_data.csv"; a.click(); URL.revokeObjectURL(a.href); });
-        document.getElementById("proModeBtn").addEventListener("click", () => showToast("Modo Pro: Alertas Telegram e histÃ³rico em breve", "info"));
-        function showToast(msg, type) { const toast = document.createElement("div"); toast.className = `bg-gray-800 border-l-4 ${type==="success"?"border-emerald-400":"border-cyan-400"} rounded-md shadow-lg p-3 max-w-sm text-sm`; toast.innerHTML = `<i class="fas fa-bell mr-2 text-emerald-300"></i>${msg}`; document.getElementById("toastContainer").appendChild(toast); setTimeout(()=>toast.remove(),5000); if(Notification.permission==="granted" && type==="success") new Notification("StableYield Radar",{body:msg}); }
-        // InicializaÃ§Ã£o
-        allOpportunities = generateMockData();
-        renderLendingTable();
-        bridgeRoutes = generateMockBridgeData();
-        if(Notification.permission!=="granted" && Notification.permission!=="denied") Notification.requestPermission();
-        showLending();
+        document.getElementById("exportCsvBtn").addEventListener("click", () => { 
+            const data = applyLendingFilters(); 
+            const csv = ["Protocolo,Rede,Stablecoin,Borrow APY,Reward APY,Net Borrow APY"].concat(data.map(r=>`${r.protocol},${r.network},${r.stablecoin},${r.borrowApy},${r.rewardApy},${r.netBorrowApy}`)).join("\n"); 
+            const blob = new Blob([csv],{type:"text/csv"}); 
+            const a=document.createElement("a"); 
+            a.href=URL.createObjectURL(blob); 
+            a.download="lending_data.csv"; 
+            a.click(); 
+            URL.revokeObjectURL(a.href); 
+        });
+        document.getElementById("proModeBtn").addEventListener("click", () => showToast("Modo Pro: Alertas avançados em breve", "info"));
+        
+        showToast("StableYield Radar carregado", "info");
     </script>
 </body>
 </html>
